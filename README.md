@@ -136,6 +136,15 @@ cmake --build build
 The CLI stub initialises the host layer, compiles a sample PTX payload, and launches a mock kernel—
 use it as a quick integration test each time you touch the build graph.
 
+### CUDA Validation Samples
+
+The new `cuda_tests/` directory contains a numbered suite of standalone CUDA
+programs (device query, vector add, shared-memory reduction, tiled GEMM) that
+progress from basic runtime usage to more complex shared-memory patterns. Build
+them with `nvcc 0X_*.cu -o <name>` on a CUDA-enabled system, then run the
+resulting binaries directly or under the CUDAway LD_PRELOAD/DLL proxy to
+validate host-driver behavior against NVIDIA's runtime.
+
 ### Windows HIP SDK Workflow
 
 Native HIP CMake support on Windows is still catching up, so CUDAway ships a scripted workaround:

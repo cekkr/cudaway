@@ -39,6 +39,9 @@ change so the next agent inherits the latest context.
 - Introduced `cmake/HipWindowsWorkarounds.cmake` and the
   `cmake/toolchains/windows-hip.cmake` helper to codify the Windows HIP SDK workaround; on Windows
   configure with `-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-hip.cmake`.
+- Added `cuda_tests/` with four increasing-complexity CUDA runtime samples (device query, vector add,
+  shared-memory reduction, tiled GEMM) so the compatibility layer can be validated against native
+  NVIDIA behavior.
 - Bootstrapped `tools/python/cuda_runtime_converter.py` plus the supporting `tools/data/` cache so
   CUDA Runtime↔HIP mapping data and `src/host/runtime/RuntimeStubTable.generated.hpp` can be
   regenerated directly from the canonical PDFs. The converter now tags entries as `hip-documented`
