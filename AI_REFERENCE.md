@@ -21,6 +21,11 @@ change so the next agent inherits the latest context.
   - `src/main.cpp` – CLI stub wiring the layers together; useful for smoke tests.
 - Added `studies/FOUNDATIONS.md` with a concise derivation of the Project Cerberus blueprint.
 - `cmake` configure + build verified locally (`cmake -S . -B build && cmake --build build`).
+- Added platform detection + HIP runtime discovery (`src/platform/PlatformConfig.*`) so the host
+  layer logs actionable hints on Linux vs. Windows environments.
+- Introduced `cmake/HipWindowsWorkarounds.cmake` and the
+  `cmake/toolchains/windows-hip.cmake` helper to codify the Windows HIP SDK workaround; on Windows
+  configure with `-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-hip.cmake`.
 
 ## Build & Test Checklist
 
@@ -29,6 +34,7 @@ cmake -S . -B build       # configure project
 cmake --build build       # compile cudaway + libcudaway_core
 ./build/cudaway           # smoke test host/device scaffolding
 ```
+Windows HIP SDK path: `cmake -S . -B build-windows -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-hip.cmake -DCUDAWAY_ROCM_WINDOWS_ROOT="C:/Program Files/AMD/ROCm"`.
 
 All new code should compile cleanly with `-Wall -Wextra -Wpedantic` (set in CMake). Add targeted
 unit/system tests as we introduce real functionality.
@@ -41,6 +47,8 @@ unit/system tests as we introduce real functionality.
   the complete CUDA Driver/Runtime API surface.
 - `src/device/PtxCompiler.*` – PTX compiler scaffold; replace the synthetic implementation with the
   PTX→LLVM→AMDGPU pipeline from the base concept.
+- `src/platform/PlatformConfig.*` – detects host OS, discovers HIP installation roots, and prints the
+  correct preload vs. DLL proxy workflow plus search paths at runtime.
 - `studies/BASE_CONCEPT.md` – original Project Cerberus research (very long, mostly single-line).
 - `studies/FOUNDATIONS.md` – working summary + actionable tasks derived from the base concept.
 
@@ -57,6 +65,8 @@ unit/system tests as we introduce real functionality.
 
 - `BASE_CONCEPT.md` – authoritative technical blueprint + risk analysis.
 - `FOUNDATIONS.md` – condensed notes, TODOs, and cross references to source scaffolding.
+- `ROCm-API-LinuxVsWindows.md` – deep dive into feature/library gaps, Windows workarounds, and the
+  scripted CMake toolchain approach now codified under `cmake/`.
 
 Keep this index synchronized when new material lands in `studies/`.
 

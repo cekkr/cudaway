@@ -8,6 +8,7 @@
 #include "common/HandleTable.hpp"
 #include "common/Types.hpp"
 #include "device/PtxCompiler.hpp"
+#include "platform/PlatformConfig.hpp"
 
 namespace cudaway::host {
 
@@ -42,6 +43,7 @@ class HostApiLayer {
     device::PtxCompiler compiler_;
     common::HandleTable<types::ModuleHandle, HipModule> modules_;
     common::HandleTable<types::FunctionHandle, HipFunction> functions_;
+    platform::PlatformConfig platform_;
 };
 
 }  // namespace cudaway::host

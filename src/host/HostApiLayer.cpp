@@ -7,7 +7,21 @@
 namespace cudaway::host {
 
 bool HostApiLayer::initialize() {
-    std::cout << "[host-api] Initialising CUDAway host layer...\n";
+    platform_ = platform::detect_platform();
+    std::cout << "[host-api] Initialising CUDAway host layer (platform=" << platform_.hostLabel
+              << ")\n";
+    std::cout << "[host-api]   loader strategy: "
+              << (platform_.supportsPreload ? "LD_PRELOAD shim" : "Proxy DLL injection") << '\n';
+
+    std::cout << "[host-api]   HIP runtime root: " << platform_.hipRuntimeRoot.string() << '\n';
+    if (!platform_.hasHipRuntime) {
+        std::cout << "[host-api]   (missing on disk) " << platform_.workaroundHint << '\n';
+    } else {
+        for (const auto& path : platform_.librarySearchPaths) {
+            std::cout << "[host-api]   search path: " << path.string() << '\n';
+        }
+    }
+
     // Later this will bootstrap HIP, contexts, and device discovery.
     return true;
 }

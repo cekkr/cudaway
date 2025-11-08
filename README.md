@@ -30,7 +30,9 @@ High-level roadmap (see Section 7.2 of the study):
 │   ├── common            # Handle tables and strongly typed handles
 │   ├── device            # PTX compiler scaffold
 │   ├── host              # Host API translation scaffold
+│   ├── platform          # Platform detection + HIP runtime discovery
 │   └── main.cpp          # Simple driver demonstrating flow
+├── cmake                 # HIP workarounds + Windows toolchain helpers
 └── studies               # Research artefacts (BASE_CONCEPT + derived notes)
 ```
 
@@ -47,6 +49,26 @@ cmake --build build
 
 The stub binary initialises the host layer, compiles a sample PTX payload, and launches a mock
 kernel—useful for validating the build system and dependency graph before wiring in HIP/LLVM.
+
+### Windows HIP SDK Workaround
+
+Native HIP CMake support on Windows is unfinished. CUDAway ships a scripted workaround that mimics
+the Linux `hip::host` targets:
+
+1. Install the AMD HIP SDK and set `CUDAWAY_ROCM_WINDOWS_ROOT` (defaults to
+   `C:/Program Files/AMD/ROCm` when unset).
+2. Configure with the bundled toolchain:
+   ```bash
+   cmake -S . -B build-windows -G Ninja \
+     -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-hip.cmake \
+     -DCUDAWAY_ROCM_WINDOWS_ROOT="C:/Program Files/AMD/ROCm"
+   ```
+3. Build with `cmake --build build-windows`.
+
+The toolchain plus `cmake/HipWindowsWorkarounds.cmake` wires `${HIP_ROOT}/include`/`lib`, links
+`amdhip64`, and defines the `cudaway_hip_windows` interface target so contributors share a single
+set of HIP flags. At runtime, `src/platform/PlatformConfig.*` validates that the expected HIP DLLs
+exist and surfaces actionable hints if the SDK is missing.
 
 ## Next Steps
 
