@@ -11,6 +11,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(cudaway_core
     src/host/HostApiLayer.cpp
+    src/host/runtime/RuntimeRegistry.cpp
     src/device/PtxCompiler.cpp
     src/platform/PlatformConfig.cpp
 )

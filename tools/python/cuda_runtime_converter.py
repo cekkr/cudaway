@@ -33,10 +33,17 @@ class MappingEntry:
         return payload
 
 
-def build_mapping(  # noqa: PLR0913 complex enough? ignore
+@dataclass
+class StatusPolicy:
+    default_status: str
+    hip_documented_status: str | None = None
+    hip_missing_status: str | None = None
+
+
+def build_mapping(
     cuda_symbols: Dict[str, SymbolData],
     hip_symbols: Dict[str, SymbolData],
-    default_status: str,
+    status_policy: StatusPolicy,
 ) -> List[MappingEntry]:
     entries: List[MappingEntry] = []
     for cuda_symbol in sorted(cuda_symbols.keys()):
@@ -52,13 +59,20 @@ def build_mapping(  # noqa: PLR0913 complex enough? ignore
             if hip_data is not None
             else "No HIP documentation match; manual shim required."
         )
+        if hip_data and status_policy.hip_documented_status:
+            status = status_policy.hip_documented_status
+        elif hip_data is None and status_policy.hip_missing_status:
+            status = status_policy.hip_missing_status
+        else:
+            status = status_policy.default_status
+
         entry = MappingEntry(
             cuda_symbol=cuda_symbol,
             hip_symbol=hip_symbol,
             hip_documented=hip_data is not None,
             cuda_pages=list(cuda_symbols[cuda_symbol].pages),
             hip_pages=list(hip_data.pages if hip_data else []),
-            status=default_status,
+            status=status,
             notes=notes,
         )
         entries.append(entry)
@@ -73,6 +87,10 @@ def generate_json_payload(
 ) -> Dict[str, object]:
     entries_list = list(entries)
     covered = sum(1 for entry in entries_list if entry.hip_documented)
+    status_breakdown: Dict[str, int] = {}
+    for entry in entries_list:
+        status_breakdown.setdefault(entry.status, 0)
+        status_breakdown[entry.status] += 1
     metadata = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "cuda_pdf": str(cuda_pdf),
@@ -80,6 +98,7 @@ def generate_json_payload(
         "entry_count": len(entries_list),
         "hip_documented": covered,
         "hip_missing": len(entries_list) - covered,
+        "status_breakdown": status_breakdown,
     }
     return {
         "metadata": metadata,
@@ -191,7 +210,17 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--default-status",
         default="pending",
-        help="Status string assigned to each mapping entry (default: pending).",
+        help="Fallback status assigned to entries when no other rule matches.",
+    )
+    parser.add_argument(
+        "--hip-documented-status",
+        default="hip-documented",
+        help="Status applied when the HIP programming guide contains the symbol.",
+    )
+    parser.add_argument(
+        "--hip-missing-status",
+        default="needs-shim",
+        help="Status applied when no HIP documentation match exists.",
     )
     args = parser.parse_args(argv)
 
@@ -202,7 +231,12 @@ def main(argv: list[str] | None = None) -> None:
 
     cuda_symbols = extract_prefixed_symbols(args.cuda_pdf, "cuda")
     hip_symbols = extract_prefixed_symbols(args.hip_pdf, "hip")
-    entries = build_mapping(cuda_symbols, hip_symbols, default_status=args.default_status)
+    status_policy = StatusPolicy(
+        default_status=args.default_status,
+        hip_documented_status=args.hip_documented_status,
+        hip_missing_status=args.hip_missing_status,
+    )
+    entries = build_mapping(cuda_symbols, hip_symbols, status_policy=status_policy)
 
     hip_only = sorted(set(hip_symbols.keys()) - {entry.hip_symbol for entry in entries})
     payload = generate_json_payload(entries, args.cuda_pdf, args.hip_pdf, hip_only)

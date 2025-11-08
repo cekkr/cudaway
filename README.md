@@ -35,6 +35,9 @@
 - Tooling bootstrap: `tools/python/cuda_runtime_converter.py` ingests the CUDA Runtime API and HIP
   Programming Guide PDFs, regenerates `tools/data/cuda_runtime_mappings.json`, and emits
   `src/host/runtime/RuntimeStubTable.generated.hpp` so runtime symbols never drift from the spec.
+- Runtime stub coverage is now surfaced directly in the CLI: `RuntimeRegistry` consumes the
+  generated table and prints how many entries are HIP-documented versus still needing shims,
+  providing instant feedback when the mapping data changes.
 - The top-level CMake configure (`cmake -S . -B build`) and build (`cmake --build build`) flow is
   green on Linux; use `./build/cudaway` for regression smoke tests. Windows follows the Ninja
   workflow outlined below once the HIP SDK is installed.
@@ -161,4 +164,6 @@ code or research so future contributors inherit the latest context.
 - `tools/python/cuda_runtime_converter.py` ingests the CUDA Runtime + HIP programming guide PDFs and
   generates `tools/data/cuda_runtime_mappings.json` plus the host-facing
   `src/host/runtime/RuntimeStubTable.generated.hpp`. Re-run it whenever the upstream docs rev so the
-  HostApiLayer/Runtime surface never drifts from official APIs.
+  HostApiLayer/Runtime surface never drifts from official APIs. The converter now tags entries as
+  `hip-documented` versus `needs-shim`, and the CLI summarizes the resulting status breakdown at run
+  time via `RuntimeRegistry`.

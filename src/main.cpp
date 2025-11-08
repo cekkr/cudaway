@@ -2,6 +2,7 @@
 #include <string>
 
 #include "host/HostApiLayer.hpp"
+#include "host/runtime/RuntimeRegistry.hpp"
 
 int main() {
     cudaway::host::HostApiLayer hostLayer;
@@ -43,6 +44,9 @@ int main() {
         std::cerr << "Launch failed: " << launchStatus.detail << '\n';
         return 1;
     }
+
+    const auto runtimeSummary = cudaway::host::runtime::summarize_runtime_table();
+    cudaway::host::runtime::print_runtime_summary(runtimeSummary, std::cout);
 
     return 0;
 }

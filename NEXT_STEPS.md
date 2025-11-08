@@ -22,7 +22,7 @@ Central tracker for every "what's next" item scattered through `README.md`, `AI_
 ## P2 – Tooling & Research Support (Short Term)
 
 1. Draft `tools/specs/ROCmWindowsMatrix.md` so Linux-vs-Windows export gaps and Vulkan fallbacks are formally modeled before coding (AI_REFERENCE.md:97-99).
-2. Document parser dependencies (libclang, pycparser fallback) in `tools/README.md` to unblock the header-analysis helpers (AI_REFERENCE.md:99-100).
+2. DONE – Parser dependencies (pypdf, libclang, pycparser fallback) are now documented in `tools/README.md` to unblock the header-analysis helpers (AI_REFERENCE.md:99-100).
 3. Once the specs are reviewed, scaffold `tools/{specs,python,data}` and introduce a `pyproject.toml` if the helpers share enough utilities to justify it (AI_REFERENCE.md:100-101).
 4. DONE – Python converter (`tools/python/cuda_runtime_converter.py`) ingests `studies/APIs/CUDA_Runtime_API.pdf` +
    `studies/APIs/AMD_HIP_Programming_Guide.pdf`, emits `tools/data/cuda_runtime_mappings.json`, and generates

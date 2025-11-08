@@ -37,7 +37,13 @@ change so the next agent inherits the latest context.
   configure with `-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-hip.cmake`.
 - Bootstrapped `tools/python/cuda_runtime_converter.py` plus the supporting `tools/data/` cache so
   CUDA Runtime↔HIP mapping data and `src/host/runtime/RuntimeStubTable.generated.hpp` can be
-  regenerated directly from the canonical PDFs.
+  regenerated directly from the canonical PDFs. The converter now tags entries as `hip-documented`
+  vs. `needs-shim` and emits a status breakdown in the JSON metadata.
+- `src/host/runtime/RuntimeRegistry.*` consumes the generated table, exposes lookup helpers, and
+  prints the HIP-documented vs. needs-shim counts during CLI runs so regressions in the mapping data
+  are highly visible.
+- `tools/README.md` documents the parser dependencies (pypdf, libclang, pycparser) so header-
+  analysis helpers have a clear onboarding story.
 - Seeded library coverage tables in `studies/mappings/CUDA_ROCM_Library_Mappings.md` (cuBLAS,
   cuDNN, cuFFT) with status flags and Windows blockers, and linked them from README/NEXT_STEPS to
   guide upcoming mapping automation.
