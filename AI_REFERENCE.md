@@ -61,6 +61,46 @@ unit/system tests as we introduce real functionality.
   `studies/FOUNDATIONS.md`.
 - Windows support requires packaging private ROCm builds (large engineering lift).
 
+## Tooling Automation Evaluation (2025-02-15)
+
+We want a `tools/` workspace that allows Markdown specs to land before Python helpers. The aim is to remove repetitive research/build chores, surface ROCm feature gaps promptly, and keep future agents fed with structured data.
+
+### Goals
+
+- Capture design notes under `tools/specs/*.md` ahead of code so reviewers can validate scope, dependencies, and tests.
+- Keep production helpers under `tools/python/` with lightweight CLI wrappers (`python -m tools.python.<tool>`).
+- Mirror decisive findings into `AI_REFERENCE.md` / `studies/*.md` to preserve the research trail.
+
+### Proposed Layout
+
+- `tools/README.md` – onboarding doc covering dependencies (Python 3.11+, `libclang`, optional Vulkan SDK) and usage.
+- `tools/specs/*.md` – pre-implementation briefs such as `ROCmWindowsMatrix.md`, `CudaRocmMapper.md`, `BinderEvaluator.md`.
+- `tools/python/` – namespace packages for the actual scripts plus shared utilities under `tools/python/common`.
+- `tools/data/` – cached JSON/YAML describing harvested APIs so expensive header scans remain optional.
+
+### Candidate Tools
+
+1. `tools/python/rocm_windows_matrix.py`
+   - Purpose: Compare ROCm Linux vs. Windows exports (headers, DLLs) and emit a coverage report/JSON manifest. Highlights functions needing HIP SDK packaging vs. Vulkan-backed fallback paths when Windows ROCm is too limited.
+   - Inputs: ROCm install roots, optional Vulkan SDK path for capability probing on Windows.
+   - Outputs: Markdown summary plus a machine-readable manifest feeding `studies/ROCm-API-LinuxVsWindows.md`.
+2. `tools/python/cuda_rocm_mapper.py`
+   - Purpose: Parse CUDA driver/runtime headers through `clang.cindex`, match symbols against ROCm or shim implementations, and generate mapping tables plus skeleton binders for `src/host/HostApiLayer`.
+   - Outputs: `tools/data/cuda_to_rocm.json` and optional header templates for cuBLAS/cuDNN adapters.
+3. `tools/python/binder_evaluator.py`
+   - Purpose: Consume the mapping data, diff it against the actual host-layer coverage, and produce progress reports (percent implemented, missing enums, etc.).
+4. `tools/python/build_doctor.py`
+   - Purpose: Validate HIP/LLVM/Vulkan toolchains across Linux/Windows, surface remediation steps, and optionally patch the `cmake/toolchains` cache entries for contributors.
+
+Each helper starts as a spec (`tools/specs/ToolName.md`) detailing inputs, outputs, data sources, and validation. After sign-off we add the Python module, minimal unit tests, and link it from `tools/README.md`.
+
+### Next Steps
+
+- Draft `tools/specs/ROCmWindowsMatrix.md` to lock down the Linux-vs-Windows data model and to record when Vulkan is the recommended fallback.
+- Document parser dependencies (libclang, pycparser fallback) inside `tools/README.md`.
+- After the specs are reviewed, scaffold `tools/{specs,python,data}` and consider a `pyproject.toml` if shared utilities expand beyond ad-hoc scripts.
+
+
 ## Research Archive (studies/)
 
 - `BASE_CONCEPT.md` – authoritative technical blueprint + risk analysis.
