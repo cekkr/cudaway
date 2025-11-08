@@ -15,15 +15,45 @@
 - **Research-grounded** – every architectural trade-off is documented under `studies/`, making it
   easy to trace design choices back to Cerberus findings.
 
-## Project Status (Feb 2025)
+## Current Status (Feb 2025)
 
-- `src/host` now exposes a typed CUDA Driver API facade (context registry + `DriverStatus` results)
-  that tracks primary/active contexts and records module/function metadata ahead of HIP wiring.
-- `src/device` contains a PTX compiler scaffold with deterministic digest-based caching (RAM +
-  disk) but still emits synthetic binaries until the LLVM AMDGPU backend is integrated.
-- `src/platform` detects HIP installations, validates DLL/SO presence, and prints preload/proxy
-  instructions for each OS.
-- CMake builds a static `cudaway_core` library plus a CLI stub (`src/main.cpp`) used for smoke tests.
+- `HostApiLayer` is now a typed Driver API facade that returns explicit `DriverStatus` values,
+  keeps primary vs. active contexts straight, and records module/function metadata so cache hits in
+  later PTX compilations can be traced. CLI smoke tests walk the init → module → function → launch
+  chain and fail fast when any driver call reports a non-success status.
+- `device::PtxCompiler` computes an FNV-1a digest per PTX payload, serves both in-memory and
+  `$TMPDIR/cudaway_ptx_cache` hits, and persists compilation metadata needed for the upcoming LLVM
+  AMDGPU backend. It still emits synthetic binaries, but running the CLI twice already demonstrates
+  cache reuse vs. recompile penalties.
+- `src/platform/PlatformConfig.*` now auto-detects OS + HIP installs, probes for the expected
+  `.so`/`.dll` inventory, and prints actionable preload/proxy guidance so Linux and Windows setups
+  share the same troubleshooting flow.
+- The Windows toolchain files (`cmake/HipWindowsWorkarounds.cmake`,
+  `cmake/toolchains/windows-hip.cmake`) codify the `cudaway_hip_windows` helper target and standard
+  HIP SDK search paths. Configure via `-DCUDAWAY_ROCM_WINDOWS_ROOT="C:/Program Files/AMD/ROCm"` to
+  keep contributors on identical flags.
+- Tooling bootstrap: `tools/python/cuda_runtime_converter.py` ingests the CUDA Runtime API and HIP
+  Programming Guide PDFs, regenerates `tools/data/cuda_runtime_mappings.json`, and emits
+  `src/host/runtime/RuntimeStubTable.generated.hpp` so runtime symbols never drift from the spec.
+- The top-level CMake configure (`cmake -S . -B build`) and build (`cmake --build build`) flow is
+  green on Linux; use `./build/cudaway` for regression smoke tests. Windows follows the Ninja
+  workflow outlined below once the HIP SDK is installed.
+
+## Next Steps Snapshot
+
+`NEXT_STEPS.md` tracks the live backlog; highlights for quick human onboarding:
+
+- **P0 – Legal checkpoint:** resolve the PTX translation go/no-go so implementation work scales with
+  confidence.
+- **P1 – Core bring-up:** finish wiring the Driver API stubs (init → launch path with typed
+  bookkeeping), swap the synthetic PTX emitter for the LLVM-backed pipeline with disk caching, grow
+  the studies-backed CUDA↔ROCm mapping tables, and document the Linux LD_PRELOAD packaging recipe.
+- **P2 – Tooling support:** land the `tools/specs/ROCmWindowsMatrix.md` brief, call out parser deps
+  in `tools/README.md`, and scaffold the shared `tools/{specs,python,data}` workspace now that the
+  runtime converter is live.
+- **P3–P5 – Roadmap guardrails:** execute the staged Linux→Runtime→AI→Windows→Scale rollout, keeping
+  Windows guardrails (HIP diagnostics, WSL2 fallback criteria, shared toolchain usage) documented as
+  detailed in `NEXT_STEPS.md` and `studies/ROCm-API-LinuxVsWindows.md`.
 
 ## Architecture at a Glance
 
