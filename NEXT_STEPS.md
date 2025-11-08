@@ -14,10 +14,10 @@ Central tracker for every "what's next" item scattered through `README.md`, `AI_
 2. Replace the synthetic PTX compiler with a real PTX → LLVM-IR → AMDGPU backend and wire it into `device::PtxCompiler`, including PTX parsing and binary caching (README.md:76; studies/FOUNDATIONS.md:67; studies/BASE_CONCEPT.md:309).
    - Immediate unblockers: pluggable compilation pipeline (`CompilationRequest`, `CompilationArtifact`, LRU cache) that can host the LLVM path later but already persists hashes on disk (AI_REFERENCE.md; studies/BASE_CONCEPT.md:309).
    - Validation: CLI smoke test compiles two kernels back-to-back and proves cache hits are reported.
-3. Extend the `studies/` folder with concrete mapping tables (cuBLAS→rocBLAS, cuDNN→MIOpen, cuFFT→rocFFT, etc.) and document ROCm blockers, especially for Windows/private builds (README.md:77-78; studies/FOUNDATIONS.md:68-69).
-   - Start with csv/markdown mapping skeletons that feed `tools/data/` so the Host API knows which symbols should forward to ROCm versus shimmed fallbacks (AI_REFERENCE.md; studies/ROCm-API-LinuxVsWindows.md).
-4. Capture detailed LD_PRELOAD packaging requirements (symbol export lists, build flags, delivery ops note) to unblock the Linux shim rollout (studies/FOUNDATIONS.md:69-70).
-   - Minimum: doc covering `ld.so` config, symbol visibility list, build flags, and release artifact layout so downstream distros can reproduce the shim (AI_REFERENCE.md).
+3. Promote `studies/mappings/CUDA_ROCM_Library_Mappings.md` into machine-readable data (cuBLAS/cuDNN/cuFFT now seeded) and extend coverage to cuSPARSE + NCCL with Windows availability flags (README.md:77-78; studies/ROCm-API-LinuxVsWindows.md).
+   - Deliverables: `tools/data/*_mappings.{csv,json}` files consumed by forthcoming Python helpers, plus per-symbol validation notes so HostApiLayer can reject unsupported calls early.
+4. Implement the LD_PRELOAD packaging automation described in `studies/LD_PRELOAD_PACKAGING.md` so release artifacts stay reproducible (studies/FOUNDATIONS.md:69-70).
+   - Deliverables: `cmake/exports/libcuda.version` + generated symbol list, visibility flags in `CMakeLists.txt`, and a `docs/LD_PRELOAD.md` snippet reused by packaging scripts.
 
 ## P2 – Tooling & Research Support (Short Term)
 

@@ -38,6 +38,11 @@ change so the next agent inherits the latest context.
 - Bootstrapped `tools/python/cuda_runtime_converter.py` plus the supporting `tools/data/` cache so
   CUDA Runtime↔HIP mapping data and `src/host/runtime/RuntimeStubTable.generated.hpp` can be
   regenerated directly from the canonical PDFs.
+- Seeded library coverage tables in `studies/mappings/CUDA_ROCM_Library_Mappings.md` (cuBLAS,
+  cuDNN, cuFFT) with status flags and Windows blockers, and linked them from README/NEXT_STEPS to
+  guide upcoming mapping automation.
+- Captured the Linux LD_PRELOAD packaging blueprint in `studies/LD_PRELOAD_PACKAGING.md`, detailing
+  symbol exports, linker flags, release layout, and validation so CMake packaging can follow suit.
 
 ## Build & Test Checklist
 
@@ -121,6 +126,10 @@ Each helper starts as a spec (`tools/specs/ToolName.md`) detailing inputs, outpu
 - `FOUNDATIONS.md` – condensed notes, TODOs, and cross references to source scaffolding.
 - `ROCm-API-LinuxVsWindows.md` – deep dive into feature/library gaps, Windows workarounds, and the
   scripted CMake toolchain approach now codified under `cmake/`.
+- `mappings/CUDA_ROCM_Library_Mappings.md` – living table of cuBLAS/cuDNN/cuFFT symbol status and
+  action items feeding `tools/data/` plus Windows availability flags.
+- `LD_PRELOAD_PACKAGING.md` – operational checklist for building and distributing the Linux shim
+  (symbols, linker flags, artifact layout, release validation).
 
 Keep this index synchronized when new material lands in `studies/`.
 

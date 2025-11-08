@@ -79,7 +79,8 @@
 | NVML / CUPTI instrumentation| RSMI / rocProfiler            | Research ongoing; informs telemetry strategy. |
 
 The table above mirrors the living research doc (`studies/ROCm-API-LinuxVsWindows.md`) so
-contributors can quickly see which CUDA feature maps where in ROCm.
+contributors can quickly see which CUDA feature maps where in ROCm. For per-symbol coverage, status
+flags, and Windows availability, consult `studies/mappings/CUDA_ROCM_Library_Mappings.md`.
 
 ## Platform & Tooling Story
 
@@ -87,6 +88,8 @@ contributors can quickly see which CUDA feature maps where in ROCm.
 - Primary development target; LD_PRELOAD layer will intercept CUDA calls and route them through HIP.
 - Uses system ROCm packages; `src/platform/PlatformConfig` verifies required `.so` files before
   enabling the shim.
+- Packaging checklist (symbols, linker flags, release layout) now lives in
+  `studies/LD_PRELOAD_PACKAGING.md`.
 
 **Windows**
 - Ships `cmake/toolchains/windows-hip.cmake` plus `cmake/HipWindowsWorkarounds.cmake` to emulate the
