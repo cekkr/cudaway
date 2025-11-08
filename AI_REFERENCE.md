@@ -96,6 +96,8 @@ Each helper starts as a spec (`tools/specs/ToolName.md`) detailing inputs, outpu
 
 ### Next Steps
 
+- Maintain `NEXT_STEPS.md` (root) as the authoritative, priority-ordered queue. When you discover new work or finish an item, update that file first so README/studies only need brief summaries.
+
 - Draft `tools/specs/ROCmWindowsMatrix.md` to lock down the Linux-vs-Windows data model and to record when Vulkan is the recommended fallback.
 - Document parser dependencies (libclang, pycparser fallback) inside `tools/README.md`.
 - After the specs are reviewed, scaffold `tools/{specs,python,data}` and consider a `pyproject.toml` if shared utilities expand beyond ad-hoc scripts.
