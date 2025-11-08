@@ -24,7 +24,10 @@ Central tracker for every "what's next" item scattered through `README.md`, `AI_
 1. Draft `tools/specs/ROCmWindowsMatrix.md` so Linux-vs-Windows export gaps and Vulkan fallbacks are formally modeled before coding (AI_REFERENCE.md:97-99).
 2. Document parser dependencies (libclang, pycparser fallback) in `tools/README.md` to unblock the header-analysis helpers (AI_REFERENCE.md:99-100).
 3. Once the specs are reviewed, scaffold `tools/{specs,python,data}` and introduce a `pyproject.toml` if the helpers share enough utilities to justify it (AI_REFERENCE.md:100-101).
-4. Build Python converters that ingest `studies/APIs/CUDA_Runtime_API.pdf` and `studies/APIs/AMD_HIP_Programming_Guide.pdf`, emit structured CUDA↔HIP mapping data, and auto-generate the corresponding C++ shim stubs so HostApiLayer/Runtime adapters stop drifting (studies/APIs/CUDA_Runtime_API.pdf; studies/APIs/AMD_HIP_Programming_Guide.pdf).
+4. DONE – Python converter (`tools/python/cuda_runtime_converter.py`) ingests `studies/APIs/CUDA_Runtime_API.pdf` +
+   `studies/APIs/AMD_HIP_Programming_Guide.pdf`, emits `tools/data/cuda_runtime_mappings.json`, and generates
+   `src/host/runtime/RuntimeStubTable.generated.hpp` so HostApiLayer/Runtime adapters no longer drift
+   (studies/APIs/CUDA_Runtime_API.pdf; studies/APIs/AMD_HIP_Programming_Guide.pdf).
 
 ## P3 – Program Roadmap (Sequenced Delivery)
 

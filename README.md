@@ -77,6 +77,7 @@ contributors can quickly see which CUDA feature maps where in ROCm.
 │   ├── host              # CUDA Driver shim entry points
 │   ├── platform          # OS + HIP discovery helpers
 │   └── main.cpp          # CLI smoke test wiring the layers
+├── tools                 # Python helpers + generated data/stub outputs
 ├── cmake                 # HIP workarounds + Windows toolchains
 └── studies               # Project Cerberus research + derived notes
 ```
@@ -121,3 +122,10 @@ The toolchain wires `${HIP_ROOT}/include` and `lib`, links against `amdhip64`, a
 
 Track day-to-day priorities in `NEXT_STEPS.md`; update `AI_REFERENCE.md` whenever you land notable
 code or research so future contributors inherit the latest context.
+
+### Tooling & Automation
+
+- `tools/python/cuda_runtime_converter.py` ingests the CUDA Runtime + HIP programming guide PDFs and
+  generates `tools/data/cuda_runtime_mappings.json` plus the host-facing
+  `src/host/runtime/RuntimeStubTable.generated.hpp`. Re-run it whenever the upstream docs rev so the
+  HostApiLayer/Runtime surface never drifts from official APIs.

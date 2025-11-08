@@ -35,6 +35,9 @@ change so the next agent inherits the latest context.
 - Introduced `cmake/HipWindowsWorkarounds.cmake` and the
   `cmake/toolchains/windows-hip.cmake` helper to codify the Windows HIP SDK workaround; on Windows
   configure with `-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-hip.cmake`.
+- Bootstrapped `tools/python/cuda_runtime_converter.py` plus the supporting `tools/data/` cache so
+  CUDA Runtime↔HIP mapping data and `src/host/runtime/RuntimeStubTable.generated.hpp` can be
+  regenerated directly from the canonical PDFs.
 
 ## Build & Test Checklist
 
@@ -104,6 +107,8 @@ We want a `tools/` workspace that allows Markdown specs to land before Python he
    - Purpose: Validate HIP/LLVM/Vulkan toolchains across Linux/Windows, surface remediation steps, and optionally patch the `cmake/toolchains` cache entries for contributors.
 
 Each helper starts as a spec (`tools/specs/ToolName.md`) detailing inputs, outputs, data sources, and validation. After sign-off we add the Python module, minimal unit tests, and link it from `tools/README.md`.
+
+**Update (Runtime focus):** `tools/python/cuda_runtime_converter.py` already ingests the CUDA Runtime API + HIP programming guide PDFs, emits `tools/data/cuda_runtime_mappings.json`, and auto-generates the host-facing stub table at `src/host/runtime/RuntimeStubTable.generated.hpp`.
 
 ### Next Steps
 
