@@ -156,6 +156,13 @@ HostApiLayer::DriverStatus HostApiLayer::release_context(types::ContextHandle co
     return DriverStatus::success("context-released");
 }
 
+HostApiLayer::DriverStatus HostApiLayer::get_or_create_primary_context(
+    types::ContextHandle& out) {
+    const auto handle = retain_primary_context();
+    out = handle;
+    return DriverStatus::success("primary-ready");
+}
+
 types::ContextHandle HostApiLayer::retain_primary_context() {
     if (primaryContext_) {
         return *primaryContext_;

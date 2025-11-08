@@ -11,6 +11,7 @@ Central tracker for every "what's next" item scattered through `README.md`, `AI_
 1. Flesh out `HostApiLayer` into a production-grade CUDA Driver/Runtime facade with full symbol coverage, backed by the handle table scaffold (README.md:75-76; studies/FOUNDATIONS.md:66-67).
    - Deliverables: context/module/function registries that mirror `cuInit`, `cuDevicePrimaryCtxRetain`, `cuModuleLoadData`, `cuModuleGetFunction`, and `cuLaunchKernel`, plus typed result codes + logging hooks referencing `platform::PlatformConfig` for diagnostics (AI_REFERENCE.md).
    - Exit criteria: Driver API smoke tests exercise at least the init→module→launch path without touching HIP yet, and every exported stub documents whether it is unimplemented, no-op, or fully wired.
+   - Progress (2025-02-16): `src/host/CudaDriverShim.*` now exports `cuInit`/`cuDevice*`/`cuModuleLoadData`/`cuModuleGetFunction`/`cuLaunchKernel` and forwards them into `HostApiLayer`; HIP bindings and real symbol exports remain outstanding.
 2. Replace the synthetic PTX compiler with a real PTX → LLVM-IR → AMDGPU backend and wire it into `device::PtxCompiler`, including PTX parsing and binary caching (README.md:76; studies/FOUNDATIONS.md:67; studies/BASE_CONCEPT.md:309).
    - Immediate unblockers: pluggable compilation pipeline (`CompilationRequest`, `CompilationArtifact`, LRU cache) that can host the LLVM path later but already persists hashes on disk (AI_REFERENCE.md; studies/BASE_CONCEPT.md:309).
    - Validation: CLI smoke test compiles two kernels back-to-back and proves cache hits are reported.

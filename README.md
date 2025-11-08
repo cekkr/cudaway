@@ -21,6 +21,10 @@
   keeps primary vs. active contexts straight, and records module/function metadata so cache hits in
   later PTX compilations can be traced. CLI smoke tests walk the init → module → function → launch
   chain and fail fast when any driver call reports a non-success status.
+- `src/host/CudaDriverShim.*` now exports a starter set of CUDA Driver API symbols
+  (`cuInit`/`cuDevice*`/`cuModuleLoadData`/`cuLaunchKernel`) so the future LD_PRELOAD/DLL proxy
+  layers call into the existing `HostApiLayer` bookkeeping. The CLI binary already exercises these
+  exports end-to-end, proving the wrapper wiring works ahead of the HIP bindings.
 - `device::PtxCompiler` computes an FNV-1a digest per PTX payload, serves both in-memory and
   `$TMPDIR/cudaway_ptx_cache` hits, and persists compilation metadata needed for the upcoming LLVM
   AMDGPU backend. It still emits synthetic binaries, but running the CLI twice already demonstrates

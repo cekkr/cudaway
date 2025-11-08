@@ -17,6 +17,10 @@ change so the next agent inherits the latest context.
   tracks primary/active contexts, and records per-module compilation metadata (cache key/path) in
   the handle tables. CLI smoke tests fail fast if any step in the init→module→function→launch chain
   reports a non-success code.
+- `src/host/CudaDriverShim.*` exports the initial CUDA Driver API surface (`cuInit`, `cuDevice*`,
+  `cuModuleLoadData`, `cuModuleGetFunction`, `cuLaunchKernel`) and routes each entry point into
+  `HostApiLayer`. The CLI now drives the same path that the upcoming LD_PRELOAD/DLL proxy builds
+  will expose, so future work can focus on HIP wiring instead of ad-hoc harnesses.
 - `device::PtxCompiler` computes a deterministic FNV-1a digest for each PTX payload, serves
   in-memory + on-disk caches (under `$TMPDIR/cudaway_ptx_cache` by default), and hands cache hits
   back to the host layer so future LLVM integration can piggy-back on the same metadata.

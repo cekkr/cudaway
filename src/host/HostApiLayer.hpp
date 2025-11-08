@@ -67,6 +67,7 @@ class HostApiLayer {
 
     DriverStatus set_current_context(types::ContextHandle context);
     DriverStatus release_context(types::ContextHandle context);
+    DriverStatus get_or_create_primary_context(types::ContextHandle& out);
     [[nodiscard]] std::optional<types::ContextHandle> current_context() const noexcept {
         return currentContext_;
     }
