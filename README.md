@@ -17,8 +17,10 @@
 
 ## Project Status (Feb 2025)
 
-- `src/host` exposes a skeletal CUDA Driver API facade that manages opaque module/function handles.
-- `src/device` contains a PTX compiler scaffold ready to host the LLVM AMDGPU backend.
+- `src/host` now exposes a typed CUDA Driver API facade (context registry + `DriverStatus` results)
+  that tracks primary/active contexts and records module/function metadata ahead of HIP wiring.
+- `src/device` contains a PTX compiler scaffold with deterministic digest-based caching (RAM +
+  disk) but still emits synthetic binaries until the LLVM AMDGPU backend is integrated.
 - `src/platform` detects HIP installations, validates DLL/SO presence, and prints preload/proxy
   instructions for each OS.
 - CMake builds a static `cudaway_core` library plus a CLI stub (`src/main.cpp`) used for smoke tests.

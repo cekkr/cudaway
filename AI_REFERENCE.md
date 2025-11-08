@@ -11,12 +11,21 @@ change so the next agent inherits the latest context.
 - Work incrementally, document breaking changes, and run the available build/test commands before
   yielding control.
 
-## Latest Context (2025-02-14)
+## Latest Context (2025-02-16)
 
+- Host layer is now a typed CUDA Driver facade: `HostApiLayer` exposes `DriverStatus` return values,
+  tracks primary/active contexts, and records per-module compilation metadata (cache key/path) in
+  the handle tables. CLI smoke tests fail fast if any step in the init→module→function→launch chain
+  reports a non-success code.
+- `device::PtxCompiler` computes a deterministic FNV-1a digest for each PTX payload, serves
+  in-memory + on-disk caches (under `$TMPDIR/cudaway_ptx_cache` by default), and hands cache hits
+  back to the host layer so future LLVM integration can piggy-back on the same metadata.
+- `NEXT_STEPS.md` was expanded with deliverable/validation bullets per priority item so reviewers
+  can tell when the Driver API hardening and PTX compiler work are "done enough" for the next phase.
 - Bootstrapped a CMake-based C++20 skeleton:
-  - `src/host/HostApiLayer.*` – placeholder Driver API facade that manages module/function handles.
-  - `src/device/PtxCompiler.*` – stub PTX→GCN compiler returning synthetic binaries (integration
-    point for PTX parser + LLVM AMDGPU backend).
+  - `src/host/HostApiLayer.*` – Driver API facade that currently logs lifecycle events and manages
+    contexts/module/function handles.
+  - `src/device/PtxCompiler.*` – PTX→GCN compiler scaffold, still synthetic but cache-aware.
   - `src/common/HandleTable.hpp` & `Types.hpp` – shared utilities for opaque handle management.
   - `src/main.cpp` – CLI stub wiring the layers together; useful for smoke tests.
 - Added `studies/FOUNDATIONS.md` with a concise derivation of the Project Cerberus blueprint.
@@ -43,10 +52,11 @@ unit/system tests as we introduce real functionality.
 
 - `CMakeLists.txt` – defines `cudaway_core` static library and `cudaway` CLI, enforces C++20.
 - `src/common/HandleTable.hpp` – threadsafe map generating opaque CUDA-style handles.
-- `src/host/HostApiLayer.*` – shim entry point; today it logs lifecycle events but will later export
-  the complete CUDA Driver/Runtime API surface.
-- `src/device/PtxCompiler.*` – PTX compiler scaffold; replace the synthetic implementation with the
-  PTX→LLVM→AMDGPU pipeline from the base concept.
+- `src/host/HostApiLayer.*` – shim entry point that now exposes typed `DriverStatus` values,
+  primary/active context registries, and handle-table backed module/function objects ready for HIP
+  wiring.
+- `src/device/PtxCompiler.*` – PTX compiler scaffold featuring deterministic cache keys plus
+  memory/disk caches; swap the synthetic binary emitter with the PTX→LLVM→AMDGPU pipeline next.
 - `src/platform/PlatformConfig.*` – detects host OS, discovers HIP installation roots, and prints the
   correct preload vs. DLL proxy workflow plus search paths at runtime.
 - `studies/BASE_CONCEPT.md` – original Project Cerberus research (very long, mostly single-line).
@@ -54,9 +64,10 @@ unit/system tests as we introduce real functionality.
 
 ## Gaps Worth Watching
 
-- Host API only supports synthetic handles—no HIP linkage yet.
-- PTX compiler does not parse PTX or emit real binaries; integrate a parser plus LLVM AMDGPU
-  backend and implement caching.
+- Host API still omits real HIP device/context/module calls; only the bookkeeping/logging path is in
+  place, so next steps are wiring HIP entry points and exporting actual CUDA symbols.
+- PTX compiler continues to emit synthetic binaries despite the new cache plumbing; it still needs a
+  real PTX parser, LLVM AMDGPU backend, and disk cache eviction strategy.
 - Ecosystem shims (cuBLAS→rocBLAS, etc.) have not been started; see the mappings outlined in
   `studies/FOUNDATIONS.md`.
 - Windows support requires packaging private ROCm builds (large engineering lift).
