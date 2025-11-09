@@ -40,3 +40,20 @@ Use `--default-status` to override the fallback annotation if neither rule match
 missing status labels propagate into both the JSON metadata (`status_breakdown`) and the generated
 C++ table so host/runtime adapters can surface progress dashboards. Re-run the converter whenever the
 PDFs change so host/runtime adapters never drift from the published APIs.
+
+## cuda_rocm_api_generator
+
+Reads `tools/data/cuda_rocm_driver_apis.json` and emits
+`src/host/generated/CudaRocmApi.generated.hpp`, which catalogues every CUDA Driver API entry point,
+its ROCm equivalent, and the per-parameter conversion placeholders (input/output/return macros
+included). The generated header also provides placeholder HIP/CUDA type aliases so the codebase can
+compile before native headers are wired in, plus BF16 conversion stubs for future emulation work.
+
+```bash
+python3 -m tools.python.cuda_rocm_api_generator \
+  --spec tools/data/cuda_rocm_driver_apis.json \
+  --header-out src/host/generated/CudaRocmApi.generated.hpp
+```
+
+Extend the JSON whenever driver coverage grows and re-run the generator so the metadata table and
+conversion macros stay synchronized with `src/host/CudaDriverShim.*` and upcoming ROCm bindings.

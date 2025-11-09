@@ -1,0 +1,231 @@
+{
+  "metadata": {
+    "description": "Bootstrap mapping between key CUDA driver APIs and their ROCm HIP equivalents.",
+    "version": 1,
+    "notes": "Seed list mirrors the functions currently exposed via CudaDriverShim; extend as coverage grows."
+  },
+  "conversions": [
+    {
+      "name": "bfloat16_value",
+      "direction": "bidirectional",
+      "cuda_type": "__nv_bfloat16",
+      "rocm_type": "hip_bfloat16",
+      "notes": "Placeholder for future BF16 emulation when native support is missing."
+    }
+  ],
+  "functions": [
+    {
+      "cuda_name": "cuInit",
+      "cuda_return_type": "CUresult",
+      "rocm_name": "hipInit",
+      "rocm_return_type": "hipError_t",
+      "notes": "Driver/context initialization entry point.",
+      "parameters": [
+        {
+          "name": "flags",
+          "direction": "in",
+          "cuda_type": "unsigned int",
+          "rocm_type": "unsigned int",
+          "notes": "Initialization flags are forwarded verbatim for now."
+        }
+      ]
+    },
+    {
+      "cuda_name": "cuDeviceGetCount",
+      "cuda_return_type": "CUresult",
+      "rocm_name": "hipGetDeviceCount",
+      "rocm_return_type": "hipError_t",
+      "notes": "Reports the number of visible devices.",
+      "parameters": [
+        {
+          "name": "count",
+          "direction": "out",
+          "cuda_type": "int*",
+          "rocm_type": "int*",
+          "notes": "CUDA expects the driver to write into the caller-provided pointer."
+        }
+      ]
+    },
+    {
+      "cuda_name": "cuDeviceGet",
+      "cuda_return_type": "CUresult",
+      "rocm_name": "hipDeviceGet",
+      "rocm_return_type": "hipError_t",
+      "notes": "Translates a device ordinal to a CUdevice handle.",
+      "parameters": [
+        {
+          "name": "device",
+          "direction": "out",
+          "cuda_type": "CUdevice*",
+          "rocm_type": "hipDevice_t*",
+          "notes": "Device handles differ across runtimes, so a conversion stub is emitted."
+        },
+        {
+          "name": "ordinal",
+          "direction": "in",
+          "cuda_type": "int",
+          "rocm_type": "int",
+          "notes": "Ordinal matches between CUDA and HIP."
+        }
+      ]
+    },
+    {
+      "cuda_name": "cuDeviceGetName",
+      "cuda_return_type": "CUresult",
+      "rocm_name": "hipDeviceGetName",
+      "rocm_return_type": "hipError_t",
+      "notes": "Provides a human-readable name for a device handle.",
+      "parameters": [
+        {
+          "name": "name",
+          "direction": "out",
+          "cuda_type": "char*",
+          "rocm_type": "char*",
+          "notes": "Buffers currently pass through but can add encoding transforms later."
+        },
+        {
+          "name": "length",
+          "direction": "in",
+          "cuda_type": "int",
+          "rocm_type": "int",
+          "notes": "Maximum length / guard."
+        },
+        {
+          "name": "device",
+          "direction": "in",
+          "cuda_type": "CUdevice",
+          "rocm_type": "hipDevice_t",
+          "notes": "Device handles require conversion."
+        }
+      ]
+    },
+    {
+      "cuda_name": "cuDevicePrimaryCtxRetain",
+      "cuda_return_type": "CUresult",
+      "rocm_name": "hipDevicePrimaryCtxRetain",
+      "rocm_return_type": "hipError_t",
+      "notes": "Retains the primary context for a given device.",
+      "parameters": [
+        {
+          "name": "pctx",
+          "direction": "out",
+          "cuda_type": "CUcontext*",
+          "rocm_type": "hipCtx_t*",
+          "notes": "Outputs a context handle."
+        },
+        {
+          "name": "device",
+          "direction": "in",
+          "cuda_type": "CUdevice",
+          "rocm_type": "hipDevice_t",
+          "notes": "Device handle provided by the caller."
+        }
+      ]
+    },
+    {
+      "cuda_name": "cuDevicePrimaryCtxRelease",
+      "cuda_return_type": "CUresult",
+      "rocm_name": "hipDevicePrimaryCtxRelease",
+      "rocm_return_type": "hipError_t",
+      "notes": "Drops a reference on the primary context for the device.",
+      "parameters": [
+        {
+          "name": "device",
+          "direction": "in",
+          "cuda_type": "CUdevice",
+          "rocm_type": "hipDevice_t",
+          "notes": "Device handle is forwarded after conversion."
+        }
+      ]
+    },
+    {
+      "cuda_name": "cuCtxSetCurrent",
+      "cuda_return_type": "CUresult",
+      "rocm_name": "hipCtxSetCurrent",
+      "rocm_return_type": "hipError_t",
+      "notes": "Installs a context as the current one on the calling thread.",
+      "parameters": [
+        {
+          "name": "ctx",
+          "direction": "in",
+          "cuda_type": "CUcontext",
+          "rocm_type": "hipCtx_t",
+          "notes": "Context handles may need translation later."
+        }
+      ]
+    },
+    {
+      "cuda_name": "cuModuleLoadData",
+      "cuda_return_type": "CUresult",
+      "rocm_name": "hipModuleLoadData",
+      "rocm_return_type": "hipError_t",
+      "notes": "Loads a module from an in-memory image.",
+      "parameters": [
+        {
+          "name": "module",
+          "direction": "out",
+          "cuda_type": "CUmodule*",
+          "rocm_type": "hipModule_t*",
+          "notes": "Module handles return through this pointer."
+        },
+        {
+          "name": "image",
+          "direction": "in",
+          "cuda_type": "const void*",
+          "rocm_type": "const void*",
+          "notes": "PTX/ELF blob pointer."
+        }
+      ]
+    },
+    {
+      "cuda_name": "cuModuleGetFunction",
+      "cuda_return_type": "CUresult",
+      "rocm_name": "hipModuleGetFunction",
+      "rocm_return_type": "hipError_t",
+      "notes": "Retrieves a kernel handle from a module.",
+      "parameters": [
+        {
+          "name": "function",
+          "direction": "out",
+          "cuda_type": "CUfunction*",
+          "rocm_type": "hipFunction_t*",
+          "notes": "Function handles are runtime-specific."
+        },
+        {
+          "name": "module",
+          "direction": "in",
+          "cuda_type": "CUmodule",
+          "rocm_type": "hipModule_t",
+          "notes": "Use conversion placeholder to translate module handles."
+        },
+        {
+          "name": "kernelName",
+          "direction": "in",
+          "cuda_type": "const char*",
+          "rocm_type": "const char*",
+          "notes": "UTF-8 string view into the module's symbol table."
+        }
+      ]
+    },
+    {
+      "cuda_name": "cuLaunchKernel",
+      "cuda_return_type": "CUresult",
+      "rocm_name": "hipModuleLaunchKernel",
+      "rocm_return_type": "hipError_t",
+      "notes": "Kernel launch path used by the driver API.",
+      "parameters": [
+        { "name": "f", "direction": "in", "cuda_type": "CUfunction", "rocm_type": "hipFunction_t", "notes": "Kernel handle." },
+        { "name": "gridDimX", "direction": "in", "cuda_type": "unsigned int", "rocm_type": "unsigned int", "notes": "Grid dimension X." },
+        { "name": "gridDimY", "direction": "in", "cuda_type": "unsigned int", "rocm_type": "unsigned int", "notes": "Grid dim Y." },
+        { "name": "gridDimZ", "direction": "in", "cuda_type": "unsigned int", "rocm_type": "unsigned int", "notes": "Grid dim Z." },
+        { "name": "blockDimX", "direction": "in", "cuda_type": "unsigned int", "rocm_type": "unsigned int", "notes": "Block dim X." },
+        { "name": "blockDimY", "direction": "in", "cuda_type": "unsigned int", "rocm_type": "unsigned int", "notes": "Block dim Y." },
+        { "name": "blockDimZ", "direction": "in", "cuda_type": "unsigned int", "rocm_type": "unsigned int", "notes": "Block dim Z." },
+        { "name": "sharedMemBytes", "direction": "in", "cuda_type": "unsigned int", "rocm_type": "std::size_t", "notes": "HIP takes size_t for shared memory." },
+        { "name": "hStream", "direction": "in", "cuda_type": "CUstream", "rocm_type": "hipStream_t", "notes": "Stream handles cross runtimes." },
+        { "name": "kernelParams", "direction": "in", "cuda_type": "void**", "rocm_type": "void**", "notes": "Kernel parameter array." },
+        { "name": "extra", "direction": "in", "cuda_type": "void**", "rocm_type": "void**", "notes": "Extra config." }
+      ]
+    }
+  ]
+}

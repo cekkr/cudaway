@@ -180,3 +180,9 @@ code or research so future contributors inherit the latest context.
   HostApiLayer/Runtime surface never drifts from official APIs. The converter now tags entries as
   `hip-documented` versus `needs-shim`, and the CLI summarizes the resulting status breakdown at run
   time via `RuntimeRegistry`.
+- `tools/python/cuda_rocm_api_generator.py` consumes
+  `tools/data/cuda_rocm_driver_apis.json` and emits
+  `src/host/generated/CudaRocmApi.generated.hpp`, which catalogues each CUDA Driver API entry point,
+  its ROCm counterpart, and the per-parameter conversion placeholders (including future-looking
+  cases such as BF16 emulation). Run it whenever the driver surface changes so host shims and
+  conversion macros stay in sync.
