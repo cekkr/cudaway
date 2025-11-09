@@ -44,16 +44,23 @@ PDFs change so host/runtime adapters never drift from the published APIs.
 ## cuda_rocm_api_generator
 
 Reads `tools/data/cuda_rocm_driver_apis.json` and emits
-`src/host/generated/CudaRocmApi.generated.hpp`, which catalogues every CUDA Driver API entry point,
-its ROCm equivalent, and the per-parameter conversion placeholders (input/output/return macros
-included). The generated header also provides placeholder HIP/CUDA type aliases so the codebase can
-compile before native headers are wired in, plus BF16 conversion stubs for future emulation work.
+`src/host/generated/CudaRocmApi.generated.hpp` plus the binder pair
+`src/host/generated/CudaRocmApiBinders.generated.{hpp,cpp}`. The header catalogues every CUDA Driver
+API entry point, its ROCm equivalent, and the per-parameter conversion placeholders
+(input/output/return macros included). The binder files declare/define shim functions that call the
+HIP entry points while invoking the generated conversion helpers, and they fall back to lightweight
+forward declarations when `hip/hip_runtime_api.h` is unavailable. The generated header still
+provides placeholder HIP/CUDA type aliases so the codebase can compile before native headers are
+wired in, plus BF16 conversion stubs for future emulation work.
 
 ```bash
 python3 -m tools.python.cuda_rocm_api_generator \
   --spec tools/data/cuda_rocm_driver_apis.json \
-  --header-out src/host/generated/CudaRocmApi.generated.hpp
+  --header-out src/host/generated/CudaRocmApi.generated.hpp \
+  --binder-header-out src/host/generated/CudaRocmApiBinders.generated.hpp \
+  --binder-source-out src/host/generated/CudaRocmApiBinders.generated.cpp
 ```
 
 Extend the JSON whenever driver coverage grows and re-run the generator so the metadata table and
-conversion macros stay synchronized with `src/host/CudaDriverShim.*` and upcoming ROCm bindings.
+conversion macros stay synchronized with `src/host/CudaDriverShim.*`, the generated binder shims,
+and upcoming ROCm bindings.

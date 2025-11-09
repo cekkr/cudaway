@@ -47,10 +47,11 @@ change so the next agent inherits the latest context.
   regenerated directly from the canonical PDFs. The converter now tags entries as `hip-documented`
   vs. `needs-shim` and emits a status breakdown in the JSON metadata.
 - Built `tools/python/cuda_rocm_api_generator.py` + `tools/data/cuda_rocm_driver_apis.json`; the
-  script emits `src/host/generated/CudaRocmApi.generated.hpp` so each CUDA Driver API entry point,
-  its ROCm analogue, and the associated input/output conversion placeholders stay in sync (it even
-  pre-stubs future cases like BF16 emulation). Re-run the generator whenever you touch the driver
-  shim surface.
+  script emits `src/host/generated/CudaRocmApi.generated.hpp` plus
+  `src/host/generated/CudaRocmApiBinders.generated.{hpp,cpp}` so every CUDA Driver API entry point,
+  its ROCm analogue, the conversion placeholders, and the HIP-forwarding binder functions stay in
+  sync (it even pre-stubs future cases like BF16 emulation). Re-run the generator whenever you touch
+  the driver shim surface.
 - `src/host/runtime/RuntimeRegistry.*` consumes the generated table, exposes lookup helpers, and
   prints the HIP-documented vs. needs-shim counts during CLI runs so regressions in the mapping data
   are highly visible.

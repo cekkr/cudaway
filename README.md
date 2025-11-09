@@ -182,7 +182,9 @@ code or research so future contributors inherit the latest context.
   time via `RuntimeRegistry`.
 - `tools/python/cuda_rocm_api_generator.py` consumes
   `tools/data/cuda_rocm_driver_apis.json` and emits
-  `src/host/generated/CudaRocmApi.generated.hpp`, which catalogues each CUDA Driver API entry point,
-  its ROCm counterpart, and the per-parameter conversion placeholders (including future-looking
-  cases such as BF16 emulation). Run it whenever the driver surface changes so host shims and
-  conversion macros stay in sync.
+  `src/host/generated/CudaRocmApi.generated.hpp` plus the binder pair
+  `src/host/generated/CudaRocmApiBinders.generated.{hpp,cpp}`. The header captures each CUDA Driver
+  API entry point, its ROCm counterpart, and the conversion placeholders (including future-looking
+  cases such as BF16 emulation) while the binder files declare/define inline shims that forward into
+  the ROCm HIP runtime using those conversions. Run it whenever the driver surface changes so host
+  shims, binders, and conversion macros stay in sync.
